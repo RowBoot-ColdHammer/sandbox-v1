@@ -5,6 +5,11 @@ FILES := --file docker-compose.main.yml
 FLAGS := ${ENV} ${FILES}
 IMAGES := $(shell ${DOCKER} ${FLAGS} images -q)
 
+# volumes
+PGDATA_DIR := ./database/volumes/pgdata
+MONGO_DIR := ./database/volumes/mongo
+REDIS_DIR := ./database/volumes/redis
+
 init-env: 
 	@[ -f ./${ENV_FILE} ] || cp .env.example ${ENV_FILE}
 
@@ -27,9 +32,11 @@ docker-clear:
 	-docker rmi -f $(shell docker images -aq)
 	-docker volume rm $(shell docker volume ls -q)
 
-scripts-create:	
-	echo "${DOCKER} ${FLAGS} up -d --build" >> up.sh
-	echo "${DOCKER} ${FLAGS} down" >> down.sh
-scripts-rm:
-	rm down.sh
-	rm up.sh
+volumes-init:
+	@[ -d $(PGDATA_DIR) ] || mkdir -p $(PGDATA_DIR) && sudo chown -R $(id -u):$(id -g) $(PGDATA_DIR)
+	@[ -d $(MONGO_DIR) ] || mkdir -p $(MONGO_DIR) && sudo chown -R $(id -u):$(id -g) $(MONGO_DIR)
+	@[ -d $(REDIS_DIR) ] || mkdir -p $(REDIS_DIR) && sudo chown -R $(id -u):$(id -g) $(REDIS_DIR)
+volumes-rm:
+	- sudo rm -rf ${PGDATA_DIR}
+	- sudo rm -rf ${MONGO_DIR}
+	- sudo rm -rf ${REDIS_DIR}

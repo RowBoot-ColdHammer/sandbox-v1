@@ -7,3 +7,7 @@ services:
     extends:
       file: database/docker-compose.db.yml
       service: mongodb
+  redis:
+    extends:
+      file: database/docker-compose.db.yml
+      service: redisdb
