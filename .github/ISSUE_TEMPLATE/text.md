@@ -1,6 +1,6 @@
 ---
 name: TEXT
-about: Describe this issue template's purpose here.
+about: Describe this issue template's purpose.
 title: text
 labels: documentation
 assignees: norv139

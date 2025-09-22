@@ -1,3 +1,4 @@
+#TODO: rewrite services to use this structure
 volumes:
   pg_data:
     driver: local
@@ -30,11 +31,11 @@ services:
     ports:
       - "${STORE_PG_DB_EXTERNAL_PORT}:${STORE_PG_DB_PORT}"
     volumes:
-      - ./dump:/docker-entrypoint-initdb.d
-      - postgres_data:/var/lib/postgresql/data
+      - ./dumps/pg_dumps:/docker-entrypoint-initdb.d
+      - ./volumes/pgdata:/var/lib/postgresql/data
 
   mongodb:
-    image: mongo:6-jammy
+    image: mongo:latest
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${STORE_MDB_DB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${STORE_MDB_DB_PASSWORD}
@@ -42,19 +43,16 @@ services:
     ports:
       - "${STORE_MDB_DB_EXTERNAL_PORT}:${STORE_MDB_DB_PORT}"
     volumes:
-      - mongo_data:/data/db
-  
+      - ./volumes/mongo:/data/db
+
   redisdb:
     image: redis:7.4-alpine
     restart: always
     environment:
       REDIS_DB: ${REDIS_DB}
-      REDIS_USER: ${REDIS_DB_USER}    # Пользователь (если используется)
-      REDIS_PASS: ${REDIS_DB_PASSWORD} 
-      # REDIS_HOST: ${REDIS_HOST}    # Хост (хотя в контейнере обычно localhost)
+      REDIS_USER: ${REDIS_DB_USER}
+      REDIS_PASS: ${REDIS_DB_PASSWORD}
     ports:
       - "${REDIS_DB_EXTERNAL_PORT}:${REDIS_DB_PORT}"
-    # command: >
-    #   sh -c "redis-server --requirepass ${REDIS_DB_PASSWORD}"
     volumes:
-      - redis_data:/data
+      - ./volumes/redis:/data

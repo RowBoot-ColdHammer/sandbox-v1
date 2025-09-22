@@ -1,5 +1,7 @@
 .vscode
 .idea
 *.sh
-!.env.example
 *.env
+database/volumes/*
+
+!.env.example
