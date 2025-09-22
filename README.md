@@ -1,31 +1,32 @@
-# Template
-text
+# TITLE
+> some text
+>> bruh
+
+---
+
+## Description
+
+`[summary]`
+
+---
+
+## features 
+
+* text-2
+
+---
 
 ## instructions
 
-### dev
 run project:
-```sh
+```bash
 make docker-up
 ```
-stop project:
-```sh
-make docker-down
-```
 
-create sh scripts:
-```sh
-make scripts-create
-```
+---
 
+<div align="center">
 
-### other
-clear docker:
-```sh
-make docker-rmi
-```
-total clear docker:
-```sh
-make docker-clear
-```
+#### made with `[text]` by `[user]`
 
+</div>
