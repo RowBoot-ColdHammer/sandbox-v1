@@ -19,7 +19,7 @@ init-env:
 	@[ -f ./${ENV_FILE} ] || cp ./.env.example ./${ENV_FILE}
 
 setup-env:
-	shell grep -v '^#' _.env | xargs export
+	export $(grep -v '^#' ./${ENV_FILE} | xargs)
 
 docker-up:
 	${DOCKER} ${FLAGS} up -d --build
