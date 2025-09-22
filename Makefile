@@ -1,9 +1,12 @@
 DOCKER := docker compose
-ENV := --env-file _.env
+ENV := --env-file .env
 FILES := --file docker-compose.main.yml
 
 FLAGS := ${ENV} ${FILES}
 IMAGES := $(shell ${DOCKER} ${FLAGS} images -q)
+
+init-env: 
+	@[ -f ./${ENV_FILE} ] || cp .env.example ${ENV_FILE}
 
 setup-env:
 	 shell grep -v '^#' _.env | xargs export
