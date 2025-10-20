@@ -1,29 +1,6 @@
-#TODO: rewrite services to use this structure
-volumes:
-  pg_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./volumes/pgdata
-
-  mongo_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./volumes/mongo
-
-  redis_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./volumes/redis
-
 services:
   pgdb:
-    image: postgres:15.4-alpine3.18
+    image: postgres:18.0-alpine3.22
     environment:
       POSTGRES_DB: ${STORE_PG_DB}
       POSTGRES_USER: ${STORE_PG_DB_USER}
@@ -32,10 +9,15 @@ services:
       - "${STORE_PG_DB_EXTERNAL_PORT}:${STORE_PG_DB_PORT}"
     volumes:
       - ./dumps/pg_dumps:/docker-entrypoint-initdb.d
-      - ./volumes/pgdata:/var/lib/postgresql/data
+      - ./volumes/pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${STORE_PG_DB_USER}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   mongodb:
-    image: mongo:latest
+    image: mongo:8
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${STORE_MDB_DB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${STORE_MDB_DB_PASSWORD}
@@ -44,9 +26,14 @@ services:
       - "${STORE_MDB_DB_EXTERNAL_PORT}:${STORE_MDB_DB_PORT}"
     volumes:
       - ./volumes/mongo:/data/db
+    healthcheck:
+      test: ["CMD", "mongod", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   redisdb:
-    image: redis:7.4-alpine
+    image: redis:8.2.2-alpine3.22
     restart: always
     environment:
       REDIS_DB: ${REDIS_DB}
@@ -56,3 +43,8 @@ services:
       - "${REDIS_DB_EXTERNAL_PORT}:${REDIS_DB_PORT}"
     volumes:
       - ./volumes/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5

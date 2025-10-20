@@ -1,0 +1,43 @@
+# node_modules directory
+node_modules
+
+# database
+database/*
+
+# build output directories
+dist
+build
+
+# logs and temporary files
+*.log
+*.tmp
+tmp
+logs
+
+# version control system directories and files
+.git
+.git*
+
+# environment variable files
+.env
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# editor swap files and caches
+*.swp
+.vscode
+.idea
+
+# certificates and keys
+*.pem
+*.key
+*.cert
+
+# pytest cache (Python)
+.pytest_cache
+
+# python virtual environments
+.venv
+venv
