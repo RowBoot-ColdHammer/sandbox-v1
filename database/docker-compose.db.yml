@@ -1,5 +1,5 @@
 services:
-  pgdb:
+  postgres:
     image: postgres:18.0-alpine3.22
     environment:
       POSTGRES_DB: ${STORE_PG_DB}
@@ -16,7 +16,7 @@ services:
       timeout: 10s
       retries: 5
 
-  mongodb:
+  mongo:
     image: mongo:8
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${STORE_MDB_DB_USER}
@@ -32,7 +32,7 @@ services:
       timeout: 10s
       retries: 5
 
-  redisdb:
+  redis:
     image: redis:8.2.2-alpine3.22
     restart: always
     environment:

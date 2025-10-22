@@ -1,15 +1,15 @@
 services:
-  pgdb:
+  postgres:
     extends:
       file: database/docker-compose.db.yml
-      service: pgdb
+      service: postgres
 
-  mongodb:
+  mongo:
     extends:
       file: database/docker-compose.db.yml
-      service: mongodb
+      service: mongo
 
   redis:
     extends:
       file: database/docker-compose.db.yml
-      service: redisdb
+      service: redis
