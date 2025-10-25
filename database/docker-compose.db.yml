@@ -1,0 +1,62 @@
+services:
+  postgres:
+    image: postgres:18.0-alpine3.22
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${STORE_PG_DB}
+      POSTGRES_USER: ${STORE_PG_DB_USER}
+      POSTGRES_PASSWORD: ${STORE_PG_DB_PASSWORD}
+    ports:
+      - "${STORE_PG_DB_EXTERNAL_PORT}:${STORE_PG_DB_PORT}"
+    volumes:
+      - ./dumps/pg_dumps:/docker-entrypoint-initdb.d
+      - ./volumes/pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready -U ${STORE_PG_DB_USER} -d ${STORE_PG_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mongo:
+    image: mongo:8
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${STORE_MDB_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${STORE_MDB_DB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${STORE_MDB_DB}
+    ports:
+      - "${STORE_MDB_DB_EXTERNAL_PORT}:${STORE_MDB_DB_PORT}"
+    volumes:
+      - ./volumes/mongo:/data/db
+    healthcheck:
+      test: ["CMD", "mongod", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: redis:8.2.2-alpine3.22
+    restart: unless-stopped
+    environment:
+      REDIS_DB: ${REDIS_DB}
+      REDIS_USER: ${REDIS_DB_USER}
+      REDIS_PASS: ${REDIS_DB_PASSWORD}
+    ports:
+      - "${REDIS_DB_EXTERNAL_PORT}:${REDIS_DB_PORT}"
+    volumes:
+      - ./volumes/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  tarantool:
+    image: tarantool/tarantool:3.5.0
+    restart: unless-stopped
+    ports:
+      - "${TARANTOOL_DB_EXTERNAL_PORT}:${TARANTOOL_DB_PORT}"
+    volumes:
+      - ./volumes/tarantool:/var/lib/tarantool
+      - ./dumps/tarantool/script:/usr/local/share/tarantool
+    command: tarantool /usr/local/share/tarantool/app.init.lua

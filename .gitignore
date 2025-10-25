@@ -1,0 +1,7 @@
+.vscode
+.idea
+*.sh
+*.env
+database/volumes/*
+
+!.env.example

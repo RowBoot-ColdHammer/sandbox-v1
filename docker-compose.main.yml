@@ -1,0 +1,20 @@
+services:
+  postgres:
+    extends:
+      file: database/docker-compose.db.yml
+      service: postgres
+
+  mongo:
+    extends:
+      file: database/docker-compose.db.yml
+      service: mongo
+
+  redis:
+    extends:
+      file: database/docker-compose.db.yml
+      service: redis
+
+  tarantool:
+    extends:
+      file: database/docker-compose.db.yml
+      service: tarantool
