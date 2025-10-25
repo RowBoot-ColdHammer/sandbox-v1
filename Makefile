@@ -11,9 +11,16 @@ IMAGES := $(shell ${DOCKER} ${FLAGS} images -q)
 
 # volumes
 VOLUMES_DIR := ./database/volumes
+
 PGDATA_DIR := ${VOLUMES_DIR}/pgdata
 MONGO_DIR := ${VOLUMES_DIR}/mongo
 REDIS_DIR := ${VOLUMES_DIR}/redis
+TARANTOOL_DIR := $(VOLUMES_DIR)/tarantool
+
+ALL_DIRS := ${PGDATA_DIR} ${MONGO_DIR} ${REDIS_DIR} ${TARANTOOL_DATA_DIR} ${TARANTOOL_DIR}
+
+
+# scripts
 
 init-env: 
 	@[ -f ./${ENV_FILE} ] || cp ./.env.example ./${ENV_FILE}
@@ -39,11 +46,20 @@ docker-clear:
 	-docker volume rm $(shell docker volume ls -q)
 
 volumes-init:
-	@[ -d $(VOLUMES_DIR) ] || mkdir -p $(VOLUMES_DIR) && sudo chown -R $(id -u):$(id -g) $(VOLUMES_DIR)
-	@[ -d $(PGDATA_DIR) ] || mkdir -p $(PGDATA_DIR) && sudo chown -R $(id -u):$(id -g) $(PGDATA_DIR)
-	@[ -d $(MONGO_DIR) ] || mkdir -p $(MONGO_DIR) && sudo chown -R $(id -u):$(id -g) $(MONGO_DIR)
-	@[ -d $(REDIS_DIR) ] || mkdir -p $(REDIS_DIR) && sudo chown -R $(id -u):$(id -g) $(REDIS_DIR)
+	@set -e; \
+	for d in ${VOLUMES_DIR} $(ALL_DIRS); do \
+		[ -z "$$d" ] && continue; \
+		[ -d $$d ] || mkdir -p $$d; \
+		sudo chown -R $$(id -u):$$(id -g) $$d; \
+		echo "$$d - created"; \
+	done
+
 volumes-rm:
-	- sudo rm -rf ${PGDATA_DIR}
-	- sudo rm -rf ${MONGO_DIR}
-	- sudo rm -rf ${REDIS_DIR}
+	@for d in $(ALL_DIRS) ${VOLUMES_DIR}; do \
+		if [ -d $$d ]; then \
+			sudo rm -rf $$d; \
+			echo "$$d - removed"; \
+		else \
+			echo "$$d - not found, skipping"; \
+		fi; \
+	done

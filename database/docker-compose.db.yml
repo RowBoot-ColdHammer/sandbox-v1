@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:18.0-alpine3.22
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${STORE_PG_DB}
       POSTGRES_USER: ${STORE_PG_DB_USER}
@@ -18,6 +19,7 @@ services:
 
   mongo:
     image: mongo:8
+    restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${STORE_MDB_DB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${STORE_MDB_DB_PASSWORD}
@@ -34,7 +36,7 @@ services:
 
   redis:
     image: redis:8.2.2-alpine3.22
-    restart: always
+    restart: unless-stopped
     environment:
       REDIS_DB: ${REDIS_DB}
       REDIS_USER: ${REDIS_DB_USER}
@@ -48,3 +50,13 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+
+  tarantool:
+    image: tarantool/tarantool:3.5.0
+    restart: unless-stopped
+    ports:
+      - "${TARANTOOL_DB_EXTERNAL_PORT}:${TARANTOOL_DB_PORT}"
+    volumes:
+      - ./volumes/tarantool:/var/lib/tarantool
+      - ./dumps/tarantool/script:/usr/local/share/tarantool
+    command: tarantool /usr/local/share/tarantool/app.init.lua
