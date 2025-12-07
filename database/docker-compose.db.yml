@@ -4,28 +4,45 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${STORE_PG_DB}
-      POSTGRES_USER: ${STORE_PG_DB_USER}
-      POSTGRES_PASSWORD: ${STORE_PG_DB_PASSWORD}
-    ports:
-      - "${STORE_PG_DB_EXTERNAL_PORT}:${STORE_PG_DB_PORT}"
+      POSTGRES_USER: ${STORE_PG_USER}
+      POSTGRES_PASSWORD: ${STORE_PG_PASSWORD}
+    expose:
+      - "${STORE_PG_PORT}"
     volumes:
       - ./dumps/pg_dumps:/docker-entrypoint-initdb.d
       - ./volumes/pgdata:/var/lib/postgresql
     healthcheck:
-      test: ["CMD", "pg_isready -U ${STORE_PG_DB_USER} -d ${STORE_PG_DB}"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h localhost -U ${STORE_PG_USER} -d ${STORE_PG_DB}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mariadb:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${STORE_MARIADB_DB} # optional: init DB
+      MARIADB_USER: ${STORE_MARIADB_USER} # optional: app user
+      MARIADB_ROOT_PASSWORD: ${STORE_MARIADB_DB} # change this
+      TZ: Europe/Amsterdam # optional
+    expose:
+      - "${STORE_MARIADB_PORT}"
+    volumes:
+      - ./volumes/mariadb:/var/lib/mysql
 
   mongo:
     image: mongo:8
     restart: unless-stopped
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${STORE_MDB_DB_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${STORE_MDB_DB_PASSWORD}
-      MONGO_INITDB_DATABASE: ${STORE_MDB_DB}
-    ports:
-      - "${STORE_MDB_DB_EXTERNAL_PORT}:${STORE_MDB_DB_PORT}"
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB}
+    expose:
+      - "${MONGO_PORT}"
     volumes:
       - ./volumes/mongo:/data/db
     healthcheck:
@@ -41,8 +58,8 @@ services:
       REDIS_DB: ${REDIS_DB}
       REDIS_USER: ${REDIS_DB_USER}
       REDIS_PASS: ${REDIS_DB_PASSWORD}
-    ports:
-      - "${REDIS_DB_EXTERNAL_PORT}:${REDIS_DB_PORT}"
+    expose:
+      - "${REDIS_DB_PORT}"
     volumes:
       - ./volumes/redis:/data
     healthcheck:
@@ -54,8 +71,8 @@ services:
   tarantool:
     image: tarantool/tarantool:3.5.0
     restart: unless-stopped
-    ports:
-      - "${TARANTOOL_DB_EXTERNAL_PORT}:${TARANTOOL_DB_PORT}"
+    expose:
+      - "${TARANTOOL_DB_PORT}"
     volumes:
       - ./volumes/tarantool:/var/lib/tarantool
       - ./dumps/tarantool/script:/usr/local/share/tarantool

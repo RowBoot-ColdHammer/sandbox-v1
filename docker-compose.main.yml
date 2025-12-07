@@ -3,18 +3,33 @@ services:
     extends:
       file: database/docker-compose.db.yml
       service: postgres
+    ports:
+      - "${STORE_PG_EXTERNAL_PORT}:${STORE_PG_PORT}"
+
+  mariadb:
+    extends:
+      file: database/docker-compose.db.yml
+      service: mariadb
+    ports:
+      - "${STORE_MARIADB_EXTERNAL_PORT}:${STORE_MARIADB_PORT}"
 
   mongo:
     extends:
       file: database/docker-compose.db.yml
       service: mongo
+    ports:
+      - "${MONGO_EXTERNAL_PORT}:${MONGO_PORT}"
 
   redis:
     extends:
       file: database/docker-compose.db.yml
       service: redis
+    ports:
+      - "${REDIS_DB_EXTERNAL_PORT}:${REDIS_DB_PORT}"
 
   tarantool:
     extends:
       file: database/docker-compose.db.yml
       service: tarantool
+    ports:
+      - "${TARANTOOL_DB_EXTERNAL_PORT}:${TARANTOOL_DB_PORT}"
